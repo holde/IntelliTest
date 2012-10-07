@@ -1,13 +1,15 @@
 package com.brentroptobias.intellitest;
 
+import roboguice.activity.RoboActivity;
+
 public class MyActivity extends RoboActivity {
 
     @InjectView(R.id.coordx)
-    TextView tv1;
+    private TextView tv1;
     @InjectView(R.id.coordx)
-    TextView tv2;
+    private TextView tv2;
     @InjectView(R.id.ll)
-    LinearLayout ll;
+    private LinearLayout ll;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
