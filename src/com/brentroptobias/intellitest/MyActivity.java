@@ -1,12 +1,18 @@
 package com.brentroptobias.intellitest;
 
+import android.os.Bundle;
+import android.view.MotionEvent;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import roboguice.activity.RoboActivity;
+import roboguice.inject.InjectView;
 
 public class MyActivity extends RoboActivity {
 
-    @InjectView(R.id.coordx)
+    @InjectView(R.id.xcoord)
     private TextView tv1;
-    @InjectView(R.id.coordx)
+    @InjectView(R.id.ycoord)
     private TextView tv2;
     @InjectView(R.id.ll)
     private LinearLayout ll;
