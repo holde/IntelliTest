@@ -1,23 +1,25 @@
 package com.brentroptobias.intellitest;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import roboguice.inject.InjectView;
 
-public class MyActivity extends Activity {
+public class MyActivity extends RoboActivity {
 
-    TextView tv1, tv2;
+    @InjectView(R.id.coordx)
+    TextView tv1;
+    @InjectView(R.id.coordx)
+    TextView tv2;
+    @InjectView(R.id.ll)
+    LinearLayout ll;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        tv1 = (TextView) findViewById(R.id.xcoord);
-        tv2 = (TextView) findViewById(R.id.ycoord);
-        LinearLayout ll = (LinearLayout) findViewById(R.id.ll);
         ll.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
