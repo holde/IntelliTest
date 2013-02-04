@@ -1,52 +1,80 @@
 package com.brentroptobias.intellitest;
 
 import android.content.Context;
-import android.graphics.*;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Path;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DrawView extends View implements View.OnTouchListener {
 
-    Bitmap bitmap = Bitmap.createBitmap(640, 480, Bitmap.Config.ARGB_8888);
-    Path path = new Path();
+    private static final float STROKE_WIDTH = 5f;
 
-    static final Paint dot = new Paint(Paint.ANTI_ALIAS_FLAG);
-    float[] x = new float[50];
-    float[] y = new float[50];
+    List<Point> points = new ArrayList<Point>();
+    Paint paint = new Paint();
+    boolean first = true;
 
-    static {
-        dot.setStyle(Paint.Style.STROKE);
-        dot.setColor(Color.RED);
-        dot.setStrokeWidth(3.0f);
-    }
+    public DrawView(Context context, AttributeSet attributeSet) {
+        super(context, attributeSet);
+        setFocusable(true);
+        setFocusableInTouchMode(true);
 
-
-    public DrawView(Context con, AttributeSet attrs) {
-        super(con, attrs);
         this.setOnTouchListener(this);
+
+        paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(STROKE_WIDTH);
+        paint.setColor(Color.WHITE);
     }
 
     @Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-        Log.d("TAG", "onDraw");
-        Matrix matrix = new Matrix();
-        matrix.reset();
-        canvas.drawBitmap(bitmap, matrix, dot);
-        path.rewind();
-        path.moveTo(x[0], y[0]);
-        for (int i = 1; i < 50; i++) {
-
-            path.lineTo(x[i], y[i]);
-            canvas.drawPath(path, dot);
+    public void onDraw(Canvas canvas) {
+        Path path = new Path();
+        for (Point point : points) {
+            if (first) {
+                first = false;
+                path.moveTo(point.x, point.y);
+            } else {
+                path.lineTo(point.x, point.y);
+            }
         }
+
+        canvas.drawPath(path, paint);
     }
 
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        this.invalidate();
-        return true;
+    public boolean onTouch(View view, MotionEvent event) {
+        if (event.getAction() != MotionEvent.ACTION_UP) {
+            for (int i = 0; i < event.getHistorySize(); i++) {
+                Point point = new Point();
+                point.x = event.getHistoricalX(i);
+                point.y = event.getHistoricalY(i);
+                points.add(point);
+            }
+            invalidate();
+            return true;
+        } else if (event.getAction() == MotionEvent.ACTION_UP) {
+            first = true;
+        }
+        return super.onTouchEvent(event);
+    }
+
+    public void clear() {
+        points.clear();
+    }
+
+    class Point {
+        float x, y;
+        float dx, dy;
+
+        @Override
+        public String toString() {
+            return x + ", " + y;
+        }
     }
 }
