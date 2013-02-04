@@ -1,24 +1,20 @@
 package com.brentroptobias.intellitest;
 
 import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Path;
+import android.graphics.*;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class DrawView extends View implements View.OnTouchListener {
 
-    private static final float STROKE_WIDTH = 5f;
+    private static final float STROKE_WIDTH = 10f;
 
-    List<Point> points = new ArrayList<Point>();
     Paint paint = new Paint();
-    boolean first = true;
+    Path path = new Path();
+    RectF rect = new RectF(0, 0, 0, 0);
+    float l = 0, t = 0, r = 0, b = 0;
 
     public DrawView(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
@@ -35,46 +31,40 @@ public class DrawView extends View implements View.OnTouchListener {
 
     @Override
     public void onDraw(Canvas canvas) {
-        Path path = new Path();
-        for (Point point : points) {
-            if (first) {
-                first = false;
-                path.moveTo(point.x, point.y);
-            } else {
-                path.lineTo(point.x, point.y);
-            }
-        }
-
         canvas.drawPath(path, paint);
     }
 
+
     public boolean onTouch(View view, MotionEvent event) {
-        if (event.getAction() != MotionEvent.ACTION_UP) {
-            for (int i = 0; i < event.getHistorySize(); i++) {
-                Point point = new Point();
-                point.x = event.getHistoricalX(i);
-                point.y = event.getHistoricalY(i);
-                points.add(point);
-            }
-            invalidate();
-            return true;
-        } else if (event.getAction() == MotionEvent.ACTION_UP) {
-            first = true;
+        float x = event.getX();
+        float y = event.getY();
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                path.moveTo(x, y);
+                return true;
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_MOVE:
+
+                l = x;
+                r = x;
+                t = y;
+                b = y;
+                for (int i = 0; i < event.getHistorySize(); i++) {
+                    float newX = event.getHistoricalX(i);
+                    float newY = event.getHistoricalY(i);
+                    path.lineTo(newX, newY);
+                    l = newX < l ? newX : l;
+                    t = newY < t ? newY : t;
+                    r = newX > r ? newX : r;
+                    b = newY > b ? newY : b;
+                }
+                rect.set(l, t, r, b);
+                Log.d("TAG", rect.toShortString());
+                invalidate((int) rect.left - 5, (int) rect.top - 5, (int) rect.right + 5, (int) rect.bottom + 5);
+                break;
+            default:
         }
         return super.onTouchEvent(event);
     }
 
-    public void clear() {
-        points.clear();
-    }
-
-    class Point {
-        float x, y;
-        float dx, dy;
-
-        @Override
-        public String toString() {
-            return x + ", " + y;
-        }
-    }
 }
